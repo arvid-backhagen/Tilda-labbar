@@ -1,5 +1,6 @@
 from linkedQFile import *
 import sys
+import string
 
 q = LinkedQ()
 
@@ -13,6 +14,7 @@ def storeMolekyl(molekyl):
 	"""Lägger in strängen i kön"""
 	for symbol in molekyl:
 		q.enqueue(symbol)
+		print(symbol)
 	#q.enqueue('\n')
 	return q
 
@@ -29,7 +31,8 @@ def readMolekyl():
 
 def readGrupp():
 	"""<group> ::= <atom> |<atom><num> | (<mol>) <num>"""
-	
+	readAtom()
+
 	if q.peek() == "(":
 		q.dequeue()
 		readMolekyl()
@@ -45,34 +48,33 @@ def readGrupp():
 				return
 			raise Syntaxfel("Saknar siffra vid radslut")
 
-	readAtom()
+	#readAtom()
 	if not q.isEmpty():
 		readNum()
 	
 
 def readAtom():
 	"""<atom>  ::= <LETTER> | <LETTER><letter>"""
-	readVersal()
-	if q.peek() is None or q.peek().isdigit():
-		return 
+	if q.peek().isalpha():
+		return
+	
+	if q.peek().isupper():
+		x = q.dequeue()
+		print(x, "I atom 1")
 	else:
-		readGemen() 
+		raise Syntaxfel("Saknar stor bokstav i början")
 
-def readVersal():
-	"""<LETTER>::= A | B | C | ... | Z"""
-	versal = q.dequeue()
-	print(versal, "dequeueas i versal")
-	if versal.isupper():
+	if q.peek() is None:
 		return
-	raise Syntaxfel("Följer inte syntaxen, versal!")
 
-def readGemen():
-	"""<letter>::= a | b | c | ... | z"""
-	gemen = q.dequeue()
-	print(gemen, "dequeueas i gemen")
-	if gemen.islower():
+	if q.peek().islower():
+		x = x + q.dequeue()
+		print(x, "I atom 2")
+		
+	if x in ATOMER:
 		return
-	raise Syntaxfel("Följer inte syntaxen, gemen!")
+	else:
+		raise Syntaxfel("Okänd atom")
 
 def readNum():
 	"""<num>   ::= 2 | 3 | 4 | ..."""
