@@ -30,33 +30,44 @@ def readMolekyl():
 
 def readGrupp():
 	"""<group> ::= <atom> |<atom><num> | (<mol>) <num>"""
+	
 	if q.peek().isupper():
 		readAtom()
-		if q.peek().isalpha():
-			readMolekyl()
+		try:
+			if q.peek().isalpha():
+				readMolekyl()
+		except:
+			pass
 
 	if q.peek() == "(":
 		q.dequeue()
 		readMolekyl()
 
 	if q.peek() == "\n":
-		raise Syntaxfel("Saknar högerparantes")
+		rest = ""
+		while not q.isEmpty():
+			rest = rest + q.dequeue()
+		raise Syntaxfel("Saknad högerparantes vid radslutet " + rest)
 
 	if q.peek() == ")":
 		q.dequeue()
 		if q.peek().isdigit():
 			readNum()
 			return
-		raise Syntaxfel("Saknar siffra vid radslut")
+		rest = ""
+		while not q.isEmpty():
+			rest = rest + q.dequeue()
+		raise Syntaxfel("Saknar siffra vid radslut " + rest)
 
-	# HÄR MÅSTE VI KOLLA OM DET FINNS FLER ATOMER I GRUPPEN	
-
-
-	#readAtom()
 	if not q.isEmpty():
-		readNum()
+		if q.peek().isdigit():
+			readNum()
+		else:
+			rest = ""
+			while not q.isEmpty():
+				rest = rest + q.dequeue()
+			raise Syntaxfel("Saknad stor bokstav vid radslutet " + rest)
 		readMolekyl()
-	print("Kön e tom")
 	
 
 def readAtom():
@@ -65,53 +76,63 @@ def readAtom():
 	
 		if q.peek().isupper():
 			x = q.dequeue()
-			print(x, "I atom 1")
+			print(x, "readAtom stor bokstav")
 		else:
-			raise Syntaxfel("Saknar stor bokstav i början")
+			rest = ""
+			while not q.isEmpty():
+				rest = rest + q.dequeue()
+			raise Syntaxfel("Saknad stor bokstav vid radslutet " + rest)
 
 		if q.peek() is None:
 			return
 
 		if q.peek().islower():
 			x = x + q.dequeue()
-			print(x, "I atom 2")
 		
 		if x in ATOMER:
-			print(x, "finns i ATOMER")
 			return
 		else:
-			raise Syntaxfel("Okänd atom")
+			rest = ""
+			while not q.isEmpty():
+				rest = rest + q.dequeue()
+			raise Syntaxfel("Okänd atom vid radslutet " + rest)
 
 def readNum():
 	"""<num>   ::= 2 | 3 | 4 | ..."""
+
+	# HUR HANTERAR VI OM DET STÅR Na12 ???
 	try:
 		if int(q.peek()) >= 2:
-			print(q.peek(), "dequeueas i num")
+			print(q.peek(), "dequeuas i readNum")
 			q.dequeue()
-			
 		else:
 			q.dequeue()
-			print("För litet tal vid radslut ")
+			rest = ""
+			while not q.isEmpty():
+				rest = rest + q.dequeue()
+			raise Syntaxfel("För litet tal vid radslutet " + rest)
 			sys.exit()
 	except (ValueError,TypeError):
-		raise Syntaxfel("Inte en siffra")
+		print("fastna i readNum Value eller TypeError")
+		sys.exit()
 
 def readFormel(molekyl):
 	"""<formel>::= <mol> \n"""
 	q = storeMolekyl(molekyl)
 	try:
 		readMolekyl()
-		return 'Följer syntaxen!'
+		return 'Formeln är syntaktiskt korrekt'
 	except Syntaxfel as error:
-		return str(error)
+		return error
 
 
 def main():
 	
 	molekyl = input("skriv en molekyl: ")
-	resultat = readFormel(molekyl)
-	print(resultat)
-	main()
+	if molekyl != "#":
+		resultat = readFormel(molekyl)
+		print(resultat)
+		main()
 
 
 if __name__ == '__main__':
