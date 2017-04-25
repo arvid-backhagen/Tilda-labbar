@@ -30,28 +30,24 @@ def readMolekyl():
 
 def readGrupp():
 	"""<group> ::= <atom> |<atom><num> | (<mol>) <num>"""
-	print("inne i readGrupp")
 	if q.peek().isupper():
-		print("Storbokstav uppfylld skickar till readAtom")
 		readAtom()
 		if q.peek().isalpha():
 			readMolekyl()
 
 	if q.peek() == "(":
-		print(q.peek(), "hittad")
 		q.dequeue()
 		readMolekyl()
 
-		if q.peek() == "\n":
-			raise Syntaxfel("Saknar högerparantes")
+	if q.peek() == "\n":
+		raise Syntaxfel("Saknar högerparantes")
 
-		if q.peek() == ")":
-			q.dequeue()
-		
-			if q.peek().isdigit():
-				readNum()
-				return
-			raise Syntaxfel("Saknar siffra vid radslut")
+	if q.peek() == ")":
+		q.dequeue()
+		if q.peek().isdigit():
+			readNum()
+			return
+		raise Syntaxfel("Saknar siffra vid radslut")
 
 	# HÄR MÅSTE VI KOLLA OM DET FINNS FLER ATOMER I GRUPPEN	
 
@@ -59,6 +55,8 @@ def readGrupp():
 	#readAtom()
 	if not q.isEmpty():
 		readNum()
+		readMolekyl()
+	print("Kön e tom")
 	
 
 def readAtom():
