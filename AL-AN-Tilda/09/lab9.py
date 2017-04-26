@@ -1,3 +1,4 @@
+
 from linkedQFile import *
 import sys
 import string
@@ -19,6 +20,8 @@ def storeMolekyl(molekyl):
 
 def readMolekyl():
 	"""<mol>   ::= <group> | <group><mol>"""
+	"""readmol() anropar readgroup() och sedan eventuellt sej själv
+	(men inte om inmatningen är slut eller om den just kommit tillbaka från ett parentesuttryck)"""
 	readGrupp()
 	if q.peek() == None:
 		return
@@ -30,6 +33,7 @@ def readMolekyl():
 
 def readGrupp():
 	"""<group> ::= <atom> |<atom><num> | (<mol>) <num>"""
+	"""readgroup() anropar antingen readatom() eller läser en parentes och anropar readmol()"""
 	
 	if q.peek().isupper():
 		readAtom()
@@ -118,6 +122,8 @@ def readNum():
 
 def readFormel(molekyl):
 	"""<formel>::= <mol> \n"""
+	"""readformel() anropar readmol()"""
+	
 	q = storeMolekyl(molekyl)
 	try:
 		readMolekyl()
@@ -127,6 +133,7 @@ def readFormel(molekyl):
 
 
 def main():
+	"""huvudprogrammet gör anropet readformel()"""
 	
 	molekyl = input("skriv en molekyl: ")
 	if molekyl != "#":
@@ -139,3 +146,6 @@ if __name__ == '__main__':
 	main()
 
 #Si(C3(COOH)2)4(H2O)7
+
+
+
