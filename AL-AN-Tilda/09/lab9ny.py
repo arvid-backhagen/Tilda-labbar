@@ -34,7 +34,7 @@ def readMolekyl():
 		readMolekyl()
 		
 	readMolekyl()
-	print("readMolekyl klar")
+	#print("readMolekyl klar")
 
 def readGrupp():
 	"""<group> ::= <atom> |<atom><num> | (<mol>) <num>"""
@@ -45,7 +45,7 @@ def readGrupp():
 
 
 	if q.peek().isalpha():
-		print("Kallar på readAtom i readGrupp")
+		#print("Kallar på readAtom i readGrupp")
 		readAtom()
 		if q.peek() is None:
 			return
@@ -57,17 +57,17 @@ def readGrupp():
 
 	if q.peek() == "(":
 		par.append(q.dequeue())
-		print("Kallar på readMol vid peek = (")
+		#print("Kallar på readMol vid peek = (")
 		readMolekyl()
 
-	print("Kön är: " + str(q))
-	print ("Paranteslistan är: " + str(par))
+	#print("Kön är: " + str(q))
+	#print ("Paranteslistan är: " + str(par))
 
 	if q.isEmpty():
 		return
 
 	if q.peek() == ")":
-		print("Hittat ): " + str(par))
+		#print("Hittat ): " + str(par))
 
 		if len(par) >= 1:
 			par.pop()
@@ -78,7 +78,7 @@ def readGrupp():
 		if q.peek() is None:
 			raise Syntaxfel("Saknad siffra vid radslutet ")
 		else:
-			print("Kallar på readNum när peek = None")
+			#print("Kallar på readNum när peek = None")
 			readNum()	
 
 	else: 
@@ -88,7 +88,7 @@ def readGrupp():
 
 	
 
-	print("readGrupp klar")
+	#print("readGrupp klar")
 
 def readAtom():
 	"""<atom>  ::= <LETTER> | <LETTER><letter>"""
@@ -96,14 +96,14 @@ def readAtom():
 	# VI SKA ENDAST KOMMA HIT OM .ISALPHA() ÄR UPPFYLLT
 	if q.peek().isupper():
 		x = q.dequeue()
-		print(x, "readAtom stor bokstav")
+		#print(x, "readAtom stor bokstav")
 	else:
 		raise Syntaxfel("Saknad stor bokstav vid radslutet ")
 
 	if q.peek() != None:
 		if q.peek().islower():
 			x = x + q.dequeue()
-			print("Atomen är", x)
+			#print("Atomen är", x)
 	
 	if x in ATOMER:
 		return
@@ -126,7 +126,7 @@ def readNum():
 			else:
 				break
 		if int(num) >= 2:
-			print(num)
+			#print(num)
 			return
 		else:
 			raise Syntaxfel("För litet tal vid radslutet ")
@@ -150,9 +150,11 @@ def readFormel(molekyl):
 
 def main():
 	#kodupprepning på alla raise Syntaxfel
-	molekyl = input("skriv en molekyl: ")
+	molekyl = input()
 	if molekyl != "#":
 		resultat = readFormel(molekyl)
+		del par[:]
+		q.clear()
 		print(resultat)
 		main()
 
