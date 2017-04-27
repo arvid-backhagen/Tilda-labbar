@@ -12,6 +12,21 @@ class LinkedQ:
 		self.__first = None
 		self.__last = None
 
+	def __str__(self):
+		dmp = ""
+		curr = self.__first
+		try: 
+			while curr.next != None:
+				dmp += curr.value + ' : '
+				curr = curr.next
+		except Exception:
+			pass
+		return dmp
+
+	def clear(self):
+		self.__first = None
+		self.__last = None
+		
 	def enqueue(self, x):
 		"""Lägger värdet x sist i kön"""
 
