@@ -4,6 +4,8 @@ import string
 
 q = LinkedQ()
 
+par=[]
+
 ATOMER = ['H', 'He', 'Li', 'Be', 'B', 'C', 'N', 'O', 'F', 'Ne', 'Na', 'Mg', 'Al', 'Si', 'P', 'S', 'Cl', 'Ar', 'K', 'Ca', 'Sc', 'Ti', 'V', 'Cr', 'Mn', 'Fe', 'Co', 'Ni', 'Cu', 'Zn', 'Ga', 'Ge', 'As', 'Se', 'Br', 'Kr', 'Rb', 'Sr', 'Y', 'Zr', 'Nb', 'Mo', 'Tc', 'Ru', 'Rh', 'Pd', 'Ag', 'Cd', 'In', 'Sn', 'Sb', 'Te', 'I', 'Xe', 'Cs', 'Ba', 'La', 'Ce', 'Pr', 'Nd', 'Pm', 'Sm', 'Eu', 'Gd', 'Tb', 'Dy', 'Ho', 'Er', 'Tm', 'Yb', 'Lu', 'Hf', 'Ta', 'W', 'Re', 'Os', 'Ir', 'Pt', 'Au', 'Hg', 'Tl', 'Pb', 'Bi', 'Po', 'At', 'Rn', 'Fr', 'Ra', 'Ac', 'Th', 'Pa', 'U', 'Np', 'Pu', 'Am', 'Cm', 'Bk', 'Cf', 'Es', 'Fm', 'Md', 'No', 'Lr', 'Rf', 'Db', 'Sg', 'Bh', 'Hs', 'Mt', 'Ds', 'Rg', 'Cn', 'Fl', 'Lv']
 
 
@@ -21,34 +23,72 @@ def readMolekyl():
 	"""<mol>   ::= <group> | <group><mol>"""
 	"""readmol() anropar readgroup() och sedan eventuellt sej själv
 	(men inte om inmatningen är slut eller om den just kommit tillbaka från ett parentesuttryck)"""
-	readGrupp()
-	if not q.isEmpty() or q.peek() != ")":
-		readMolekyl()
 
+	if q.isEmpty():
+			if len(par) > 0:
+				raise Syntaxfel("Saknad högerparentes vid radslutet ")
+			return
+
+	readGrupp()
+	if not q.isEmpty() and q.peek() != ")":
+		readMolekyl()
+		
+	readMolekyl()
+	print("readMolekyl klar")
 
 def readGrupp():
 	"""<group> ::= <atom> |<atom><num> | (<mol>) <num>"""
-	if q.peek().isdigit() or q.peek() == None or q.peek() == ")":
+	"""readgroup() anropar antingen readatom() eller läser en parentes och anropar readmol()"""
+
+	if q.peek().isdigit() or q.peek() == None:
 		raise Syntaxfel("Felaktig gruppstart vid radslutet ")
 
-	if q.peek() == "(":
-		q.dequeue()
-		readMolekyl()
-		if q.peek() == ")":
-			q.dequeue()
-			if q.peek() is None:
-				raise Syntaxfel("Saknad siffra vid radslutet ")
-			readNum()
-		else:
-			raise Syntaxfel("Saknad högerparentes vid radslutet ")
 
-	elif q.peek().isalpha():
+	if q.peek().isalpha():
+		print("Kallar på readAtom i readGrupp")
 		readAtom()
 		if q.peek() is None:
 			return
 		if q.peek().isdigit():
 			readNum()
+		readMolekyl()
+
 	
+
+	if q.peek() == "(":
+		par.append(q.dequeue())
+		print("Kallar på readMol vid peek = (")
+		readMolekyl()
+
+	print("Kön är: " + str(q))
+	print ("Paranteslistan är: " + str(par))
+
+	if q.isEmpty():
+		return
+
+	if q.peek() == ")":
+		print("Hittat ): " + str(par))
+
+		if len(par) >= 1:
+			par.pop()
+			q.dequeue()
+		else:
+			raise Syntaxfel("Felaktig gruppstart vid radslutet ")
+
+		if q.peek() is None:
+			raise Syntaxfel("Saknad siffra vid radslutet ")
+		else:
+			print("Kallar på readNum när peek = None")
+			readNum()	
+
+	else: 
+		raise Syntaxfel("Saknad högerparentes vid radslutet ")
+
+	
+
+	
+
+	print("readGrupp klar")
 
 def readAtom():
 	"""<atom>  ::= <LETTER> | <LETTER><letter>"""
@@ -118,3 +158,5 @@ def main():
 
 if __name__ == '__main__':
 	main()
+
+
