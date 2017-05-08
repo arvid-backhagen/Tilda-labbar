@@ -15,60 +15,48 @@ class Syntaxfel(Exception):
 
 
 def storeMolekyl(molekyl):
-	"""Lägger in strängen i kön"""
 	for symbol in molekyl:
 		q.enqueue(symbol)
 	return q
 
 def readMolekyl():
-	"""<mol>   ::= <group> | <group><mol>"""
-	"""readmol() anropar readgroup() och sedan eventuellt sej själv
-	(men inte om inmatningen är slut eller om den just kommit tillbaka från ett parentesuttryck)"""
 
 	if q.isEmpty():
-			if len(par) > 0:
-				raise Syntaxfel("Saknad högerparentes vid radslutet ")
-			return
+		if len(par) > 0:
+			raise Syntaxfel("Saknad högerparentes vid radslutet ")
+		return mol
 
-	readGrupp()
+	mol = readGrupp()
 	if not q.isEmpty() and q.peek() != ")":
-		readMolekyl()
+		mol.next = readMolekyl()
 		
 	readMolekyl()
-	#print("readMolekyl klar")
 
 def readGrupp():
-	"""<group> ::= <atom> |<atom><num> | (<mol>) <num>"""
-	"""readgroup() anropar antingen readatom() eller läser en parentes och anropar readmol()"""
 
 	if q.peek().isdigit() or q.peek() == None:
 		raise Syntaxfel("Felaktig gruppstart vid radslutet ")
 
 
 	if q.peek().isalpha():
-		#print("Kallar på readAtom i readGrupp")
-		readAtom()
+		atomruta = Ruta(atom = readAtom())
 		if q.peek() is None:
 			return
 		if q.peek().isdigit():
-			readNum()
+			atomruta.num = readNum()
 		readMolekyl()
-
 	
 
 	if q.peek() == "(":
+		paratesruta = Ruta()
 		par.append(q.dequeue())
-		#print("Kallar på readMol vid peek = (")
-		readMolekyl()
+		parantesruta.down = readMolekyl()
 
-	#print("Kön är: " + str(q))
-	#print ("Paranteslistan är: " + str(par))
 
 	if q.isEmpty():
 		return
 
 	if q.peek() == ")":
-		#print("Hittat ): " + str(par))
 
 		if len(par) >= 1:
 			par.pop()
@@ -79,35 +67,26 @@ def readGrupp():
 		if q.peek() is None:
 			raise Syntaxfel("Saknad siffra vid radslutet ")
 		else:
-			#print("Kallar på readNum när peek = None")
-			readNum()	
+			parantesruta.num = readNum()	
 
 	else: 
 		raise Syntaxfel("Saknad högerparentes vid radslutet ")
 
-	
-
-	
-
-	#print("readGrupp klar")
 
 def readAtom():
 	"""<atom>  ::= <LETTER> | <LETTER><letter>"""
 
-	# VI SKA ENDAST KOMMA HIT OM .ISALPHA() ÄR UPPFYLLT
 	if q.peek().isupper():
 		x = q.dequeue()
-		#print(x, "readAtom stor bokstav")
 	else:
 		raise Syntaxfel("Saknad stor bokstav vid radslutet ")
 
 	if q.peek() != None:
 		if q.peek().islower():
 			x = x + q.dequeue()
-			#print("Atomen är", x)
 	
 	if x in ATOMER:
-		return
+		return x
 	else:
 		raise Syntaxfel("Okänd atom vid radslutet ")
 
@@ -127,8 +106,7 @@ def readNum():
 			else:
 				break
 		if int(num) >= 2:
-			#print(num)
-			return
+			return int(num)
 		else:
 			raise Syntaxfel("För litet tal vid radslutet ")
 	else:
@@ -144,20 +122,25 @@ def readFormel(molekyl):
 	"""<formel>::= <mol> \n"""
 	q = storeMolekyl(molekyl)
 	try:
-		readMolekyl()
-		return 'Formeln är syntaktiskt korrekt'
+		
+		return readMolekyl()
 	except Syntaxfel as error:
 		return str(error) + printQ()
 
 def main():
 	#kodupprepning på alla raise Syntaxfel
+
+	mg = Molgrafik() # Skapar objekt för att rita upp molekyl
+
 	molekyl = input("Molekyl: ")
 	if molekyl != "#":
 		resultat = readFormel(molekyl)
 		del par[:]
 		q.clear()
 		print(resultat)
+		mg.show(resultat)
 		main()
+
 
 if __name__ == '__main__':
 	main()
