@@ -24,8 +24,8 @@ def readMolekyl():
 	if q.isEmpty():
 		if len(par) > 0:
 			raise Syntaxfel("Saknad högerparentes vid radslutet ")
-		return mol
-
+		return
+		
 	mol = readGrupp()
 	if not q.isEmpty() and q.peek() != ")":
 		mol.next = readMolekyl()
