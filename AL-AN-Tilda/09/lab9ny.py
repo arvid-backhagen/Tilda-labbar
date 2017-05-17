@@ -27,7 +27,7 @@ def readMolekyl():
 	readGrupp()
 	if q.isEmpty():
 		return
-	if q.peek() == ")":
+	elif q.peek() == ")":
 		if len(par) < 1:
 			raise Syntaxfel("Felaktig gruppstart vid radslutet ") 
 		return
@@ -47,7 +47,9 @@ def readGrupp():
 	"""<group> ::= <atom> |<atom><num> | (<mol>) <num>"""
 	"""readgroup() anropar antingen readatom() eller läser en parentes och anropar readmol()"""
 
-	if q.peek().isdigit() or q.peek() == None:
+	if q.isEmpty():
+		raise Syntaxfel("Felaktig gruppstart vid radslutet ")
+	if q.peek().isdigit():
 		raise Syntaxfel("Felaktig gruppstart vid radslutet ")
 
 	if q.peek().isalpha():
@@ -72,6 +74,8 @@ def readGrupp():
 		else:
 			par.pop()
 			q.dequeue()
+			if q.isEmpty():
+				raise Syntaxfel("Saknad siffra vid radslutet ")
 			readNum()
 	else:
 		raise Syntaxfel("Felaktig gruppstart vid radslutet ")
@@ -137,7 +141,7 @@ def readFormel(molekyl):
 
 def main():
 	#kodupprepning på alla raise Syntaxfel
-	molekyl = sys.stdin()
+	molekyl = sys.stdin.readline().strip()
 	if molekyl != "#":
 		resultat = readFormel(molekyl)
 		del par[:]
