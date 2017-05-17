@@ -20,7 +20,7 @@ def storeMolekyl(molekyl):
 	return q
 
 def readMolekyl():
-
+	"""<mol>   ::= <group> | <group><mol>"""
 	if q.isEmpty():
 		if len(par) > 0:
 			raise Syntaxfel("Saknad högerparentes vid radslutet ")
@@ -33,7 +33,7 @@ def readMolekyl():
 	readMolekyl()
 
 def readGrupp():
-
+	"""<group> ::= <atom> |<atom><num> | (<mol>) <num>"""
 	if q.peek().isdigit() or q.peek() == None:
 		raise Syntaxfel("Felaktig gruppstart vid radslutet ")
 
@@ -41,10 +41,10 @@ def readGrupp():
 	if q.peek().isalpha():
 		atomruta = Ruta(atom = readAtom())
 		if q.peek() is None:
-			return
+			return atomruta
 		if q.peek().isdigit():
 			atomruta.num = readNum()
-		readMolekyl()
+			return atomruta
 	
 
 	if q.peek() == "(":
@@ -54,7 +54,7 @@ def readGrupp():
 
 
 	if q.isEmpty():
-		return
+		return 
 
 	if q.peek() == ")":
 

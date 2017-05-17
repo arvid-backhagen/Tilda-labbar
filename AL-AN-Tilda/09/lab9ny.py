@@ -24,16 +24,23 @@ def readMolekyl():
 	"""readmol() anropar readgroup() och sedan eventuellt sej själv
 	(men inte om inmatningen är slut eller om den just kommit tillbaka från ett parentesuttryck)"""
 
-	if q.isEmpty():
-			if len(par) > 0:
-				raise Syntaxfel("Saknad högerparentes vid radslutet ")
-			return
-
 	readGrupp()
-	if not q.isEmpty() and q.peek() != ")":
+	if q.isEmpty():
+		return
+	if q.peek() == ")":
+		if len(par) < 1:
+			raise Syntaxfel("Felaktig gruppstart vid radslutet ") 
+		return
+	else:
 		readMolekyl()
-		
-	readMolekyl()
+
+	
+	# if q.isEmpty():
+	# 	if len(par) > 0:
+	# 		raise Syntaxfel("Saknad högerparentes vid radslutet ")
+	# 	return
+	
+	#readMolekyl()
 	#print("readMolekyl klar")
 
 def readGrupp():
@@ -43,7 +50,6 @@ def readGrupp():
 	if q.peek().isdigit() or q.peek() == None:
 		raise Syntaxfel("Felaktig gruppstart vid radslutet ")
 
-
 	if q.peek().isalpha():
 		#print("Kallar på readAtom i readGrupp")
 		readAtom()
@@ -51,49 +57,28 @@ def readGrupp():
 			return
 		if q.peek().isdigit():
 			readNum()
-		readMolekyl()
-
-	
-
-	if q.peek() == "(":
-		par.append(q.dequeue())
-		#print("Kallar på readMol vid peek = (")
-		readMolekyl()
-
-	#print("Kön är: " + str(q))
-	#print ("Paranteslistan är: " + str(par))
-
-	if q.isEmpty():
 		return
 
-	if q.peek() == ")":
-		#print("Hittat ): " + str(par))
+	elif q.peek() == "(":
+		par.append(q.dequeue())
+		readMolekyl()
 
-		if len(par) >= 1:
-			par.pop()
-			q.dequeue()
-		else:
-			raise Syntaxfel("Felaktig gruppstart vid radslutet ")
+		if q.peek() != ")":
+			raise Syntaxfel("Saknad högerparentes vid radslutet ")
+				
 
-		if q.peek() is None:
+		if q.isEmpty():
 			raise Syntaxfel("Saknad siffra vid radslutet ")
 		else:
-			#print("Kallar på readNum när peek = None")
-			readNum()	
-
-	else: 
-		raise Syntaxfel("Saknad högerparentes vid radslutet ")
-
-	
-
-	
-
-	#print("readGrupp klar")
+			par.pop()
+			q.dequeue()
+			readNum()
+	else:
+		raise Syntaxfel("Felaktig gruppstart vid radslutet ")
 
 def readAtom():
 	"""<atom>  ::= <LETTER> | <LETTER><letter>"""
 
-	# VI SKA ENDAST KOMMA HIT OM .ISALPHA() ÄR UPPFYLLT
 	if q.peek().isupper():
 		x = q.dequeue()
 		#print(x, "readAtom stor bokstav")
@@ -144,16 +129,19 @@ def readFormel(molekyl):
 	q = storeMolekyl(molekyl)
 	try:
 		readMolekyl()
+		if len(par) > 0:
+			raise Syntaxfel('Saknad högerparentes vid radslutet ')
 		return 'Formeln är syntaktiskt korrekt'
 	except Syntaxfel as error:
 		return str(error) + printQ()
 
 def main():
 	#kodupprepning på alla raise Syntaxfel
-	molekyl = input()
+	molekyl = sys.stdin()
 	if molekyl != "#":
 		resultat = readFormel(molekyl)
 		del par[:]
+		printQ()
 		q.clear()
 		print(resultat)
 		main()
